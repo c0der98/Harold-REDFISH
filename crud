@@ -1,0 +1,160 @@
+#!flask/bin/python
+
+from flask import Flask, jsonify, request, abort
+
+import requests
+
+app = Flask(__name__)
+
+@app.route('/rackhd/login', methods=['POST'])
+def rackhd_login():
+	if not request.json or not 'username' in request.json:
+		abort(400)
+
+	user =  request.json['username']
+	pw = request.json['password']
+	
+	url = "https://localhost:8443/login"
+	payload = '{"username" : "' + user + '", "password" : "' + pw +'"}'
+	headers= {
+	"Content-Type": "application/json"
+	}
+	r = requests.post(url, headers=headers, data=payload, verify=False)
+	return r.text
+
+
+@app.route('/rackhd/nodes/read', methods=['GET'])
+def readnode():
+	token = request.headers.get('token')
+	url = "https://localhost:8443/api/current/nodes"
+	headers = {"Content-Type":"application/json", "Authorization":"JWT "+token
+	}
+	r = requests.get(url, headers=headers, verify=False)
+
+	return r.text
+
+@app.route('/rackhd/nodes/create', methods=['POST'])
+def createnode():
+
+	name = request.json['name']
+	typ = request.json['typ']
+	token = request.headers.get('token')
+	url = "https://localhost:8443/api/current/nodes"
+
+	payload = '{"name":"%s","type":"%s","autoDiscover":false}' % (name,typ)
+
+	headers= {"Content-Type": "application/json", "Authorization": "JWT "+token}
+
+	r = requests.post(url, headers=headers, data=payload, verify=False)
+	return payload
+
+@app.route('/rackhd/nodes/delete', methods=['DELETE'])
+def deletenode():
+	ids = request.args.get('ids')
+	token = request.headers.get('token')
+	url = "https://localhost:8443/api/current/nodes/%s" % ids
+	headers= {"Content-Type":"application/json",
+"Authorization":"JWT "+token}
+
+	r = requests.delete(url, headers=headers, verify=False)
+	return r.text
+	
+@app.route('/rackhd/nodes/update',methods=['PATCH'])
+def updatenode():
+	token = request.headers.get('token')
+	ids = request.args.get('ids')
+	field = request.json['field']
+	data = request.json['data']
+	
+	url = "https://localhost:8443/api/current/nodes/%s" % ids
+	payload = '{"%s": "%s"}' %(field,data)
+	headers= {"Content-Type":"application/json",
+"Authorization":"JWT "+token}
+	r = requests.patch(url, headers=headers, data=payload, verify=False)
+	return r.text
+
+
+
+
+if __name__ == '__main__':
+	app.run(debug=True)
+#!flask/bin/python
+
+from flask import Flask, jsonify, request, abort
+
+import requests
+
+app = Flask(__name__)
+
+@app.route('/rackhd/login', methods=['POST'])
+def rackhd_login():
+	if not request.json or not 'username' in request.json:
+		abort(400)
+
+	user =  request.json['username']
+	pw = request.json['password']
+	
+	url = "https://localhost:8443/login"
+	payload = '{"username" : "' + user + '", "password" : "' + pw +'"}'
+	headers= {
+	"Content-Type": "application/json"
+	}
+	r = requests.post(url, headers=headers, data=payload, verify=False)
+	return r.text
+
+
+@app.route('/rackhd/nodes/read', methods=['GET'])
+def readnode():
+	token = request.headers.get('token')
+	url = "https://localhost:8443/api/current/nodes"
+	headers = {"Content-Type":"application/json", "Authorization":"JWT "+token
+	}
+	r = requests.get(url, headers=headers, verify=False)
+
+	return r.text
+
+@app.route('/rackhd/nodes/create', methods=['POST'])
+def createnode():
+
+	name = request.json['name']
+	typ = request.json['typ']
+	token = request.headers.get('token')
+	url = "https://localhost:8443/api/current/nodes"
+
+	payload = '{"name":"%s","type":"%s","autoDiscover":false}' % (name,typ)
+
+	headers= {"Content-Type": "application/json", "Authorization": "JWT "+token}
+
+	r = requests.post(url, headers=headers, data=payload, verify=False)
+	return payload
+
+@app.route('/rackhd/nodes/delete', methods=['DELETE'])
+def deletenode():
+	ids = request.args.get('ids')
+	token = request.headers.get('token')
+	url = "https://localhost:8443/api/current/nodes/%s" % ids
+	headers= {"Content-Type":"application/json",
+"Authorization":"JWT "+token}
+
+	r = requests.delete(url, headers=headers, verify=False)
+	return r.text
+	
+@app.route('/rackhd/nodes/update',methods=['PATCH'])
+def updatenode():
+	token = request.headers.get('token')
+	ids = request.args.get('ids')
+	field = request.json['field']
+	data = request.json['data']
+	
+	url = "https://localhost:8443/api/current/nodes/%s" % ids
+	payload = '{"%s": "%s"}' %(field,data)
+	headers= {"Content-Type":"application/json",
+"Authorization":"JWT "+token}
+	r = requests.patch(url, headers=headers, data=payload, verify=False)
+	return r.text
+
+
+
+
+if __name__ == '__main__':
+	app.run(debug=True)
