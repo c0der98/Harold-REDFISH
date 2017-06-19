@@ -1,160 +1,245 @@
 #!flask/bin/python
 
+
+
 from flask import Flask, jsonify, request, abort
+
+
 
 import requests
 
+
+
 app = Flask(__name__)
 
+
+
 @app.route('/rackhd/login', methods=['POST'])
+
 def rackhd_login():
-	if not request.json or not 'username' in request.json:
-		abort(400)
+
+	#if not request.json or not 'username' in request.json:
+
+	#	abort(400)
+
+
 
 	user =  request.json['username']
+
 	pw = request.json['password']
+
 	
+
 	url = "https://localhost:8443/login"
+
 	payload = '{"username" : "' + user + '", "password" : "' + pw +'"}'
-	headers= {
-	"Content-Type": "application/json"
-	}
+
+	headers= {"Content-Type": "application/json"}
+
 	r = requests.post(url, headers=headers, data=payload, verify=False)
+
 	return r.text
 
 
+
+
+
+  #######################################################################
+
+			#NODES
+
+   #####################################################################
+
+
+
+
+
+	
+
 @app.route('/rackhd/nodes/read', methods=['GET'])
+
 def readnode():
+
 	token = request.headers.get('token')
+
 	url = "https://localhost:8443/api/current/nodes"
+
 	headers = {"Content-Type":"application/json", "Authorization":"JWT "+token
+
 	}
+
+	r = requests.get(url, headers=headers, verify=False)
+
+
+
+	return r.text
+
+
+
+@app.route('/rackhd/nodes/create', methods=['POST'])
+
+def createnode():
+
+
+
+	name = request.json['name']
+
+	typ = request.json['typ']
+
+	token = request.headers.get('token')
+
+	url = "https://localhost:8443/api/current/nodes"
+
+
+
+	payload = '{"name":"%s","type":"%s","autoDiscover":false}' % (name,typ)
+
+
+
+	headers= {"Content-Type": "application/json", "Authorization": "JWT "+token}
+
+
+
+	r = requests.post(url, headers=headers, data=payload, verify=False)
+
+	return payload
+
+
+
+@app.route('/rackhd/nodes/delete', methods=['DELETE'])
+
+def deletenode():
+
+	ids = request.args.get('ids')
+
+	token = request.headers.get('token')
+
+	url = "https://localhost:8443/api/current/nodes/%s" % ids
+
+	headers= {"Content-Type":"application/json",
+
+"Authorization":"JWT "+token}
+
+
+
+	r = requests.delete(url, headers=headers, verify=False)
+
+	return r.text
+
+	
+
+@app.route('/rackhd/nodes/update',methods=['PATCH'])
+
+def updatenode():
+
+	token = request.headers.get('token')
+
+	ids = request.args.get('ids')
+
+	field = request.json['field']
+
+	data = request.json['data']
+
+	
+
+	url = "https://localhost:8443/api/current/nodes/%s" % ids
+
+	payload = '{"%s": "%s"}' %(field,data)
+
+	headers= {"Content-Type":"application/json",
+
+"Authorization":"JWT "+token}
+
+	r = requests.patch(url, headers=headers, data=payload, verify=False)
+
+	return r.text
+
+
+
+
+
+	#############################     TAGS   ########################################  
+
+
+
+@app.route('/rackhd/tags/create',methods=['POST'])
+
+def createtag():
+
+        token = request.headers.get('token')
+
+        name = request.json['name']
+
+        cpath = request.json['cpath']
+
+        contains = request.json['contains']
+
+	epath = request.json['epath']
+
+	equals = request.json['equals']
+
+
+
+        url = "https://localhost:8443/api/current/tags"
+
+        payload = '{"name":"%s", "rules": [{"path":"%s", "contains":"%s"}, {"path":"%s", "equals":"%s"}]}'% (name,cpath,contains,epath,equals)
+
+
+
+        headers= {"Content-Type":"application/json",
+
+"Authorization":"JWT "+token}
+
+        r = requests.post(url, headers=headers, data=payload, verify=False)
+
+        return r.text
+
+
+
+@app.route('/rackhd/tags/read', methods=['GET'])
+
+def readtag():
+
+	token = request.headers.get('token')
+
+	url = "https://localhost:8443/api/current/tags/"
+
+	headers= {"Content-Type":"application/json", "Authorization":"JWT "+token}	
+
 	r = requests.get(url, headers=headers, verify=False)
 
 	return r.text
 
-@app.route('/rackhd/nodes/create', methods=['POST'])
-def createnode():
 
-	name = request.json['name']
-	typ = request.json['typ']
+
+@app.route('/rackhd/tags/update', methods=['PATCH'])
+
+def updatetag():
+
 	token = request.headers.get('token')
-	url = "https://localhost:8443/api/current/nodes"
 
-	payload = '{"name":"%s","type":"%s","autoDiscover":false}' % (name,typ)
+	node_id = request.args.get('id')
 
-	headers= {"Content-Type": "application/json", "Authorization": "JWT "+token}
+	tags = request.json['tags']
 
-	r = requests.post(url, headers=headers, data=payload, verify=False)
-	return payload
+	url = "https://localhost:8443/api/current/nodes/%s/tags" % node_id
 
-@app.route('/rackhd/nodes/delete', methods=['DELETE'])
-def deletenode():
-	ids = request.args.get('ids')
-	token = request.headers.get('token')
-	url = "https://localhost:8443/api/current/nodes/%s" % ids
-	headers= {"Content-Type":"application/json",
-"Authorization":"JWT "+token}
-
-	r = requests.delete(url, headers=headers, verify=False)
-	return r.text
 	
-@app.route('/rackhd/nodes/update',methods=['PATCH'])
-def updatenode():
-	token = request.headers.get('token')
-	ids = request.args.get('ids')
-	field = request.json['field']
-	data = request.json['data']
-	
-	url = "https://localhost:8443/api/current/nodes/%s" % ids
-	payload = '{"%s": "%s"}' %(field,data)
-	headers= {"Content-Type":"application/json",
-"Authorization":"JWT "+token}
+
+	headers= {"Content-Type":"application/json", "Authorization":"JWT "+token}
+
+	payload = '{"tags":["%s"]}' % tags
+
+
+
 	r = requests.patch(url, headers=headers, data=payload, verify=False)
-	return r.text
 
+	return r.text
 
 
 
 if __name__ == '__main__':
+
 	app.run(debug=True)
-#!flask/bin/python
 
-from flask import Flask, jsonify, request, abort
-
-import requests
-
-app = Flask(__name__)
-
-@app.route('/rackhd/login', methods=['POST'])
-def rackhd_login():
-	if not request.json or not 'username' in request.json:
-		abort(400)
-
-	user =  request.json['username']
-	pw = request.json['password']
 	
-	url = "https://localhost:8443/login"
-	payload = '{"username" : "' + user + '", "password" : "' + pw +'"}'
-	headers= {
-	"Content-Type": "application/json"
-	}
-	r = requests.post(url, headers=headers, data=payload, verify=False)
-	return r.text
-
-
-@app.route('/rackhd/nodes/read', methods=['GET'])
-def readnode():
-	token = request.headers.get('token')
-	url = "https://localhost:8443/api/current/nodes"
-	headers = {"Content-Type":"application/json", "Authorization":"JWT "+token
-	}
-	r = requests.get(url, headers=headers, verify=False)
-
-	return r.text
-
-@app.route('/rackhd/nodes/create', methods=['POST'])
-def createnode():
-
-	name = request.json['name']
-	typ = request.json['typ']
-	token = request.headers.get('token')
-	url = "https://localhost:8443/api/current/nodes"
-
-	payload = '{"name":"%s","type":"%s","autoDiscover":false}' % (name,typ)
-
-	headers= {"Content-Type": "application/json", "Authorization": "JWT "+token}
-
-	r = requests.post(url, headers=headers, data=payload, verify=False)
-	return payload
-
-@app.route('/rackhd/nodes/delete', methods=['DELETE'])
-def deletenode():
-	ids = request.args.get('ids')
-	token = request.headers.get('token')
-	url = "https://localhost:8443/api/current/nodes/%s" % ids
-	headers= {"Content-Type":"application/json",
-"Authorization":"JWT "+token}
-
-	r = requests.delete(url, headers=headers, verify=False)
-	return r.text
-	
-@app.route('/rackhd/nodes/update',methods=['PATCH'])
-def updatenode():
-	token = request.headers.get('token')
-	ids = request.args.get('ids')
-	field = request.json['field']
-	data = request.json['data']
-	
-	url = "https://localhost:8443/api/current/nodes/%s" % ids
-	payload = '{"%s": "%s"}' %(field,data)
-	headers= {"Content-Type":"application/json",
-"Authorization":"JWT "+token}
-	r = requests.patch(url, headers=headers, data=payload, verify=False)
-	return r.text
-
-
-
-
-if __name__ == '__main__':
-	app.run(debug=True)
