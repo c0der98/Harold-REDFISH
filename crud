@@ -16,7 +16,7 @@ def get_password(username):
 def unauthorized():
     return make_response(jsonify({'error': 'Unauthorized access'}), 401)
 
-
+##################### LOGIN, SESSIONS,ETC ##########################
 @app.route('/rackhd/login', methods=['POST'])
 @auth.login_required
 def rackhd_login():
@@ -32,14 +32,44 @@ def rackhd_login():
 	r = requests.post(url, headers=headers, data=payload, verify=False)
 	return r.text
 
+@app.route('/redfish/login',methods=['POST'])
+@auth.login_required
+def redfish_login():
+	user =  request.json['username']
+        pw = request.json['password']
+
+        url = "https://localhost:8443/redfish/v1/SessionService/Sessions"
+        payload = '{"UserName" : "' + user + '", "Password" : "' + pw +'"}'
+        headers= {"Content-Type": "application/json"}
+        r = requests.post(url, headers=headers, data=payload, verify=False)
+        return r.text
+
+@app.route('/redfish/readsessions', methods=['GET'])
+@auth.login_required
+def redfish_session():
+	url = "https://localhost:8443/redfish/v1/SessionService/Sessions/"
+	headers = {"content-type":"application/json"}
+	
+	r = requests.get(url, headers=headers, auth=('admin','admin123'), verify=False)
+	return r.text
+
+@app.route('/redfish/deletesessions', methods=['DELETE'])
+@auth.login_required
+def redfish_delsession():
+	sid = request.args.get('id')
+	url = "https://localhost:8443/redfish/v1/SessionService/Sessions/%s" % sid
+	r = requests.delete(url, auth=('admin','admin123'), verify=False)
+	return r.text
+
 
   #######################################################################
-			#NODES
+				#NODES
    #####################################################################
 
 
 	
 @app.route('/rackhd/nodes/read', methods=['GET'])
+@auth.login_required
 def readnode():
 	token = request.headers.get('token')
 	url = "https://localhost:8443/api/current/nodes"
@@ -50,6 +80,7 @@ def readnode():
 	return r.text
 
 @app.route('/rackhd/nodes/create', methods=['POST'])
+@auth.login_required
 def createnode():
 
 	name = request.json['name']
@@ -65,6 +96,7 @@ def createnode():
 	return payload
 
 @app.route('/rackhd/nodes/delete', methods=['DELETE'])
+@auth.login_required
 def deletenode():
 	ids = request.args.get('ids')
 	token = request.headers.get('token')
@@ -76,6 +108,7 @@ def deletenode():
 	return r.text
 	
 @app.route('/rackhd/nodes/update',methods=['PATCH'])
+@auth.login_required
 def updatenode():
 	token = request.headers.get('token')
 	ids = request.args.get('ids')
@@ -93,6 +126,7 @@ def updatenode():
 	#############################     TAGS   ########################################  
 
 @app.route('/rackhd/tags/create',methods=['POST'])
+@auth.login_required
 def createtag():
         token = request.headers.get('token')
         name = request.json['name']
@@ -110,6 +144,7 @@ def createtag():
         return r.text
 
 @app.route('/rackhd/tags/read', methods=['GET'])
+@auth.login_required
 def readtag():
 	token = request.headers.get('token')
 	url = "https://localhost:8443/api/current/tags/"
@@ -119,6 +154,7 @@ def readtag():
 
 @app.route('/rackhd/tags/update', methods=['PATCH'])
 #**add tags to NODE**
+@auth.login_required
 def updatetag():
 	token = request.headers.get('token')
 	node_id = request.args.get('id')
@@ -132,6 +168,7 @@ def updatetag():
 	return r.text
 
 @app.route('/rackhd/tags/delete', methods=['DELETE'])
+@auth.login_required
 def deletetag():
 	token = request.headers.get('token')
 	tag_name = request.args.get('name')
@@ -141,6 +178,7 @@ def deletetag():
 	return r.text
 
 @app.route('/rackhd/nodes/readtag', methods=['GET'])
+@auth.login_required
 def readnodetag():
 	token = request.headers.get('token')
 	node_id = request.args.get('nodeid')
@@ -151,6 +189,7 @@ def readnodetag():
 	return r.text
 
 @app.route('/rackhd/nodes/deletetag', methods=['DELETE'])
+@auth.login_required
 def deletetagfromnode():
 	token = request.headers.get('token')
 	node_id = request.args.get('nodeid')
@@ -164,6 +203,7 @@ def deletetagfromnode():
      #############################   HOOOK ###############################
 
 @app.route('/rackhd/hook/create', methods=['POST'])
+@auth.login_required
 def createhook():
 	token = request.headers.get('token')
 	link = request.json['url']
@@ -175,6 +215,7 @@ def createhook():
 	return r.text
 
 @app.route('/rackhd/hook/read', methods=['GET'])
+@auth.login_required
 def readhook():
 	token = request.headers.get('token')
 	url = "https://localhost:8443/api/2.0/hooks"
@@ -183,6 +224,7 @@ def readhook():
 	return r.text
 
 @app.route('/rackhd/hook/update', methods=['PATCH'])
+@auth.login_required
 def updatehook():
 	token = request.headers.get('token')
 	hook_id = request.args.get('hook_id')
@@ -195,6 +237,7 @@ def updatehook():
 	return r.text
 
 @app.route('/rackhd/hook/delete', methods=['DELETE'])
+@auth.login_required
 def deletehook():
 	token = request.headers.get('token')
 	hook_id = request.args.get('hook_id')
