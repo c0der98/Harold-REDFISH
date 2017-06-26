@@ -16,7 +16,8 @@ tags:
 - name: H00K
   description: FOIRE NIDE
   
-  
+paths:
+
 /rackhd/hook:
     get:
       tags:
