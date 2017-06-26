@@ -1,12 +1,14 @@
 swagger: '2.0'
 host: localhost:5000
+schemes: 
+- http
 info:
-  description: API 4 REALS
+  description: REDFISH SWAGGER BY HAROLD, HTTP AUTH CREDENTIALS ARE sti:sti
   version: "1.0.0"
   title: REDFISH API!!!!
   # put the contact info for your development or API team
   license:
-    name: STI RED FISH
+    name: HAROLD SONG
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 
 # tags are used for organizing operations
@@ -15,19 +17,42 @@ tags:
   description: Secured Admin-only calls
 - name: H00K
   description: FOIRE NIDE
-  
-paths:
 
-/rackhd/hook:
+paths:
+  /rackhd/login:
+    post:
+      tags:
+      - RackHD Login
+      summary: login
+      description: enter user id and password to get token
+      security:
+      - basicAuth: []  #HTTP AUTH
+      parameters:
+      - in: body
+        name: credentials
+        description: Enter username and password
+        required: true
+        schema:
+          $ref: '#/definitions/Creds'
+
+      responses:
+        200:
+          description: OK
+        400:
+          description: invalid input, object invalid
+        405:
+          description: method not allowed
+    
+  /rackhd/hook:
     get:
       tags:
-      - read hooks
+      - Read Hooks
       summary: get hooks
-      operationId: readHook
+      #operationId: readHook
       description: |
         By passing the token, you can read h00ks
-      produces:
-      - application/json
+      security:
+      - basicAuth: [] #HTTPAUTH
       parameters:
       - in: header
         name: token
@@ -37,10 +62,6 @@ paths:
       responses:
         200:
           description: successs!!!!
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Hooks'
         400:
           description: bad input parameter
         405:
@@ -48,14 +69,12 @@ paths:
     
     post:
       tags:
-      - create hooks
+      - Create Hooks
       summary: create new hooks
       operationId: addHook
       description: Adds an hook
-      consumes:
-      - application/json
-      produces:
-      - application/json
+      security:
+      - basicAuth: []
       parameters:
       - in: body
         name: hook
@@ -84,10 +103,12 @@ paths:
 
     patch:
       tags:
-      - update hooks
+      - Update Hooks
       summary: update a hooks
       operationId: patchHook
       description: update a hook
+      security:
+      - basicAuth: []
       consumes:
       - application/json
       produces:
@@ -126,10 +147,12 @@ paths:
 
     delete:
       tags:
-      - delete hooks
+      - Delete Hooks
       summary: delete a hooks
       operationId: deleteHook
       description: delete a hook
+      security:
+      - basicAuth: []
       consumes:
       - application/json
       produces:
@@ -147,18 +170,328 @@ paths:
           
       responses:
         200:
-          description: hook created
+          description: OK
         400:
           description: invalid input, object invalid
         405:
           description: method not allowed
-        409:
-          description: duplicate hook found
 
-        
+          
+  /rackhd/nodes:
+  
+    get:
+      tags: 
+      - Read Nodes
+      security:
+      - basicAuth: []
+      summary: Read nodes
+      description: Enter token to read all nodes
+      parameters:
+        - in: header
+          name: token
+          required: true
+          description: enter auth_token here
+          type: string
       
+      responses:
+        200:
+          description: OK
+        400:
+          description: invalid input, object invalid
+        405:
+          description: method not allowed
+    post:
+      tags: 
+      - Create Nodes
+      summary: Create a node
+      description: Create a new node
+      security:
+      - basicAuth: []
+      parameters:
+        - in: header
+          name: token
+          description: Enter auth_token here
+          required: true
+          type: string     
+        - in: body
+          name: nodes
+          required: true
+          description: Enter new node data
+          schema:
+            $ref: '#/definitions/Nodes'
+      responses:
+        200:
+          description: OK
+        400:
+          description: invalid input, object invalid
+        405:
+          description: method not allowed
+    
+    
+    delete:
+      tags:
+      - Delete Nodes
+      summary: Delete a node
+      description: Delete a node
+      security:
+      - basicAuth: []
+      parameters: 
+      - in: query
+        name: ids
+        description: Enter the node id to be deleted
+        required: true
+        type: string
+      - in: header
+        name: token
+        description: Enter auth_token here
+        required: true
+        type: string   
+      responses:
+        200:
+          description: OK
+        400:
+          description: invalid input, object invalid
+        405:
+          description: method not allowed
+      
+    patch:
+      tags:
+      - Update Nodes
+      summary: Update a node
+      description: Update nodes
+      security:
+      - basicAuth: []
+      parameters: 
+      - in: query
+        name: ids
+        description: Enter the node id to be deleted
+        required: true
+        type: string
+      - in: header
+        name: token
+        description: Enter auth_token here
+        required: true
+        type: string  
+      - in: body
+        name: Field & Data
+        required: true
+        description: Enter the the field to update and what data to update it with
+        schema:
+          $ref: '#/definitions/UpdNode'
+      responses:
+        200:
+          description: OK
+        400:
+          description: invalid input, object invalid
+        405:
+          description: method not allowed
+
+
+
+          
+  /rackhd/tags/read:
+      get:
+        tags:
+        - Read Tags
+        summary: Read tags
+        description: read tags
+        security:
+          - basicAuth: []
+        parameters:
+        - in: header
+          name: token
+          description: Enter auth_token here
+          required: true
+          type: string
+          
+        responses:
+          200:
+            description: OK
+          400:
+            description: invalid input, object invalid
+          405:
+            description: method not allowed
+          
+  
+  /rackhd/tags/create:
+    post:
+      tags: 
+      - Create Tags
+      summary: Create a new tag
+      description: Create a new tag by entering new tag data
+      security:
+          - basicAuth: []
+      parameters: 
+      - in: header
+        name: token
+        description: Enter auth_token here
+        required: true
+        type: string 
+      - in: body
+        description: Enter tag data
+        name: tag data
+        required: true
+        schema:
+          $ref: '#/definitions/tags'
+      
+      responses:
+        200:
+          description: OK
+        400:
+            description: invalid input, object invalid
+        405:
+            description: method not allowed
+    
+  /rackhd/tags/update:
+    patch:
+      tags: 
+      - Update Tags
+      summary: Patch a tag onto a Node to match workflow
+      description: Patch a tag onto a node to match workflow
+      security:
+          - basicAuth: []
+      parameters: 
+      - in: header
+        name: token
+        description: Enter auth_token here
+        required: true
+        type: string 
+      - in: query
+        name: id
+        description: Enter the ID of the node
+        required: true
+        type: string
+      - in: body
+        name: tag
+        description: Enter tags to patch onto the node
+        schema:
+          $ref: '#/definitions/UpdTags'
+      responses:
+        200:
+          description: OK
+        400:
+            description: invalid input, object invalid
+        405:
+            description: method not allowed
+            
+  /rackhd/tags/delete:
+    delete:
+      tags: 
+      - Delete Tags
+      summary: Delete a specific tag
+      description: Delete a tag
+      security:
+          - basicAuth: []
+      parameters: 
+      - in: header
+        name: token
+        description: Enter auth_token here
+        required: true
+        type: string 
+      - in: query
+        name: name
+        description: Enter name of the tag to be deleted
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+        400:
+            description: invalid input, object invalid
+        405:
+            description: method not allowed
+          
+          
+          
+
+securityDefinitions:
+  basicAuth:
+    type: basic
+# security:
+ #- basicAuth: []
           
 definitions:
+
+########### creds ########
+  Creds:
+    type: object
+    required: 
+    - username
+    - password
+    properties:
+      username:
+        type: string
+        example: admin
+      password:
+        type: string
+        example: password123    
+
+########### NODES   ################3
+  Nodes:
+    type: object
+    required:
+    - name
+    - typ
+    properties:
+      name:
+        type: string
+        example: Widget Adapter
+      typ:
+        type: string
+        example: switch
+        
+########### TAGS #################
+  tags:
+    type: object
+    required: 
+    - name
+    - cpath
+    - contains
+    - epath
+    - equals
+    properties:
+      name:
+        type: string
+        example: AMD 32GB RAM
+      cpath:
+        type: string
+        example: dmi.Base Board Information.Manufacturer
+      contains:
+        type: string
+        example: Intel
+      epath:
+        type: string
+        example: dmi.memory.total
+      equals:
+        type: string
+        example: 329483092KB
+        
+############ Tag for patching to a node
+  UpdTags:
+            type: object
+            required: 
+            - tags
+            properties:
+              tags:
+                type: string
+                example: Intel 32GB RAM
+ 
+#######3 SPECIFYING FIELD OF A NODE AND THE DATA TO UPDATE TAHT FIELD ###
+  UpdNode:
+    type: object
+    required: 
+    - field
+    - data
+    properties:
+      field:
+        type: string
+        example: type
+      data:
+        type: string
+        example: compute
+
+        
+###########      NAME FOR HOOKS      ####################
   Name:
     type: object
     required:
@@ -167,6 +500,8 @@ definitions:
       name:
         type: string
         example: thisisaname
+        
+#########    HOOOOOOKS ##########3
   Hooks:
     type: object
     required:
