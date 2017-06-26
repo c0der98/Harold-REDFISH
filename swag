@@ -1,3 +1,22 @@
+swagger: '2.0'
+host: localhost:5000
+info:
+  description: API 4 REALS
+  version: "1.0.0"
+  title: REDFISH API!!!!
+  # put the contact info for your development or API team
+  license:
+    name: STI RED FISH
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+# tags are used for organizing operations
+tags:
+- name: H00K
+  description: Secured Admin-only calls
+- name: H00K
+  description: FOIRE NIDE
+  
+  
 /rackhd/hook:
     get:
       tags:
