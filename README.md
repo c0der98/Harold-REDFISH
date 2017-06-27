@@ -1,6 +1,7 @@
 #  HAROLD'S README FOR REDFISH FLASK
 
    CRUDs: NODES, TAGS, HOOKS
+   
    HTTPAuth credentials: sti:sti
    
    Redfish admin credentials: admin:admin123
