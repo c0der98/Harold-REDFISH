@@ -2,6 +2,7 @@
 
    CRUDs: NODES, TAGS, HOOKS
    HTTPAuth credentials: sti:sti
+   
    Redfish admin credentials: admin:admin123
 
 ## GETTING STARTED
