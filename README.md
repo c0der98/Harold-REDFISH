@@ -2,6 +2,8 @@
 
    CRUDs: NODES, TAGS, HOOKS
    
+   Flask App is "HaroldLatestCRUD.py"
+   
    HTTPAuth credentials: sti:sti
    
    Redfish admin credentials: admin:admin123
